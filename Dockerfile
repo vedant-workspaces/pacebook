@@ -9,6 +9,9 @@ COPY frontend/ ./
 # Contact email shown on /privacy and /terms (Render passes env vars as build args).
 ARG VITE_CONTACT_EMAIL
 ENV VITE_CONTACT_EMAIL=$VITE_CONTACT_EMAIL
+# Google Search Console verification token (meta-tag method).
+ARG VITE_GOOGLE_SITE_VERIFICATION
+ENV VITE_GOOGLE_SITE_VERIFICATION=$VITE_GOOGLE_SITE_VERIFICATION
 RUN npm run build
 
 FROM golang:1.24-alpine AS api

@@ -24,6 +24,9 @@ services:
       # Contact email shown on the /privacy and /terms pages.
       - key: VITE_CONTACT_EMAIL
         sync: false
+      # Optional: Google Search Console verification token (meta-tag method).
+      - key: VITE_GOOGLE_SITE_VERIFICATION
+        sync: false
       # FRONTEND_URL defaults to the service URL (RENDER_EXTERNAL_URL) and the
       # OAuth redirect to <FRONTEND_URL>/api/auth/google/callback. Set
       # FRONTEND_URL only when you add a custom domain.
