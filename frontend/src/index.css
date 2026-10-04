@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Barlow Condensed", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Night-run navy for text and chrome. */
+  --color-ink: #0e1726;
+  --color-ink-soft: #3a4558;
+  --color-muted: #6b7486;
+
+  /* Warm paper background, like a training notebook. */
+  --color-paper: #f6f5f1;
+  --color-line: #e5e2da;
+  --color-line-strong: #d3cfc4;
+
+  /* Ember: energy, primary actions. */
+  --color-ember-50: #fff2eb;
+  --color-ember-100: #ffe0d1;
+  --color-ember-500: #ff5a1f;
+  --color-ember-600: #e9480f;
+  --color-ember-700: #c03a0b;
+
+  /* Status colours — always paired with an icon and a word. */
+  --color-done: #12845a;
+  --color-done-50: #e6f5ee;
+  --color-changed: #a86a0b;
+  --color-changed-50: #fdf3e2;
+  --color-missed: #bf3a34;
+  --color-missed-50: #fcebea;
+  --color-planned: #5b6678;
+  --color-planned-50: #eef0f4;
+
+  /* Chart series. */
+  --color-actual: #f2591d;
+  --color-plan: #4e78b5;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-ember-500);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  dialog::backdrop {
+    background: rgb(14 23 38 / 0.55);
+    backdrop-filter: blur(2px);
+  }
+}
+
+@utility num {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+@utility eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+@utility pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom), 0px);
+}
+
+/* Skeleton shimmer. */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #ebe8e1 0px, #f4f2ed 160px, #ebe8e1 320px);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 0.75rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
