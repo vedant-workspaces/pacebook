@@ -51,8 +51,13 @@ func Load() (*Config, error) {
 		GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		GoogleRedirectURL:  os.Getenv("GOOGLE_REDIRECT_URL"),
 		SessionSecret:      os.Getenv("SESSION_SECRET"),
-		FrontendURL:        strings.TrimRight(getenv("FRONTEND_URL", "http://localhost:5173"), "/"),
-		StaticDir:          os.Getenv("STATIC_DIR"),
+		// On Render, the service's public URL is a sensible default.
+		FrontendURL: strings.TrimRight(getenv("FRONTEND_URL", getenv("RENDER_EXTERNAL_URL", "http://localhost:5173")), "/"),
+		StaticDir:   os.Getenv("STATIC_DIR"),
+	}
+
+	if cfg.GoogleRedirectURL == "" && cfg.GoogleClientID != "" {
+		cfg.GoogleRedirectURL = cfg.FrontendURL + "/api/auth/google/callback"
 	}
 
 	ttlDays, err := strconv.Atoi(getenv("SESSION_TTL_DAYS", "30"))
@@ -81,7 +86,7 @@ func Load() (*Config, error) {
 			return nil, errors.New("SESSION_SECRET must be at least 32 characters in production")
 		}
 		if !cfg.GoogleEnabled() {
-			return nil, errors.New("GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and GOOGLE_REDIRECT_URL are required in production")
+			return nil, errors.New("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are required in production")
 		}
 	} else {
 		cfg.DevAuthEnabled = devAuth
