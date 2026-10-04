@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -34,6 +35,12 @@ type Config struct {
 
 	// StaticDir, when set, makes the API also serve the built frontend.
 	StaticDir string
+
+	// Google Search Console ownership verification (both optional):
+	// SiteVerificationToken is added to index.html as a meta tag;
+	// SiteVerificationFile (e.g. "google1234abcd.html") is served at /<file>.
+	SiteVerificationToken string
+	SiteVerificationFile  string
 }
 
 func (c *Config) IsProduction() bool { return c.Env == "production" }
@@ -54,6 +61,14 @@ func Load() (*Config, error) {
 		// On Render, the service's public URL is a sensible default.
 		FrontendURL: strings.TrimRight(getenv("FRONTEND_URL", getenv("RENDER_EXTERNAL_URL", "http://localhost:5173")), "/"),
 		StaticDir:   os.Getenv("STATIC_DIR"),
+	}
+
+	cfg.SiteVerificationToken = parseVerificationToken(getenv("GOOGLE_SITE_VERIFICATION", os.Getenv("VITE_GOOGLE_SITE_VERIFICATION")))
+	if f := strings.TrimSpace(os.Getenv("GOOGLE_SITE_VERIFICATION_FILE")); f != "" {
+		if !verificationFileRe.MatchString(f) {
+			return nil, errors.New("GOOGLE_SITE_VERIFICATION_FILE must look like google0123abcd.html")
+		}
+		cfg.SiteVerificationFile = f
 	}
 
 	if cfg.GoogleRedirectURL == "" && cfg.GoogleClientID != "" {
@@ -101,6 +116,25 @@ func Load() (*Config, error) {
 	}
 
 	return cfg, nil
+}
+
+var (
+	verificationFileRe  = regexp.MustCompile(`^google[0-9a-f]+\.html$`)
+	verificationTagRe   = regexp.MustCompile(`content\s*=\s*["']([^"']+)["']`)
+	verificationTokenRe = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+)
+
+// parseVerificationToken accepts either the bare token or the whole
+// <meta name="google-site-verification" content="..."> tag Google shows.
+func parseVerificationToken(v string) string {
+	v = strings.TrimSpace(v)
+	if m := verificationTagRe.FindStringSubmatch(v); m != nil {
+		v = m[1]
+	}
+	if !verificationTokenRe.MatchString(v) {
+		return ""
+	}
+	return v
 }
 
 func getenv(key, fallback string) string {

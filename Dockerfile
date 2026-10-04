@@ -6,6 +6,9 @@ WORKDIR /web
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 COPY frontend/ ./
+# Contact email shown on /privacy and /terms (Render passes env vars as build args).
+ARG VITE_CONTACT_EMAIL
+ENV VITE_CONTACT_EMAIL=$VITE_CONTACT_EMAIL
 RUN npm run build
 
 FROM golang:1.24-alpine AS api

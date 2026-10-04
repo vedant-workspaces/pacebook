@@ -196,6 +196,8 @@ Browser cookies are not port-specific, so in development the state cookie set vi
 | `CORS_ALLOWED_ORIGINS` | no | | Extra origins, comma-separated |
 | `DEV_AUTH_ENABLED` | no | `false` | Development sign-in (development only) |
 | `STATIC_DIR` | no | | Serve the built SPA from this directory |
+| `GOOGLE_SITE_VERIFICATION` | no | | Search Console token (or the whole meta tag), added to every page's `<head>` |
+| `GOOGLE_SITE_VERIFICATION_FILE` | no | | Search Console HTML file name, e.g. `google0123abcd.html`, served at `/<name>` |
 | `TEST_DATABASE_URL` | tests | | Database used and **truncated** by integration tests |
 
 Copy `.env.example` to `.env`. `.env` is git-ignored.

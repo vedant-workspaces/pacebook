@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"html"
+	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -86,8 +89,20 @@ func NewRouter(cfg *config.Config, pool *pgxpool.Pool) http.Handler {
 	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, http.StatusNotFound, httpx.CodeNotFound, "Not found.")
 	})
+	if cfg.SiteVerificationFile != "" {
+		name := cfg.SiteVerificationFile
+		mux.HandleFunc("GET /"+name, func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			io.WriteString(w, "google-site-verification: "+name) //nolint:errcheck
+		})
+	}
 	if cfg.StaticDir != "" {
-		mux.Handle("/", spaHandler(cfg.StaticDir))
+		spa, err := spaHandler(cfg.StaticDir, cfg.SiteVerificationToken)
+		if err != nil {
+			slog.Error("static files unavailable", "dir", cfg.StaticDir, "err", err)
+		} else {
+			mux.Handle("/", spa)
+		}
 	}
 
 	var h http.Handler = mux
@@ -100,19 +115,32 @@ func NewRouter(cfg *config.Config, pool *pgxpool.Pool) http.Handler {
 }
 
 // spaHandler serves the built frontend, falling back to index.html so
-// client-side routes like /training/123 work on reload.
-func spaHandler(dir string) http.Handler {
+// client-side routes like /training/123 work on reload. index.html is held
+// in memory, with the Search Console verification meta tag added if set.
+func spaHandler(dir, verificationToken string) (http.Handler, error) {
+	index, err := os.ReadFile(filepath.Join(dir, "index.html"))
+	if err != nil {
+		return nil, err
+	}
+	if verificationToken != "" {
+		tag := `<meta name="google-site-verification" content="` + html.EscapeString(verificationToken) + `" />`
+		index = []byte(strings.Replace(string(index), "<head>", "<head>\n    "+tag, 1))
+	}
+
 	files := http.FileServer(http.Dir(dir))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		p := filepath.Join(dir, filepath.Clean("/"+r.URL.Path))
-		if info, err := os.Stat(p); err == nil && !info.IsDir() {
-			if strings.HasPrefix(r.URL.Path, "/assets/") {
-				w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		if r.URL.Path != "/" && r.URL.Path != "/index.html" {
+			p := filepath.Join(dir, filepath.Clean("/"+r.URL.Path))
+			if info, err := os.Stat(p); err == nil && !info.IsDir() {
+				if strings.HasPrefix(r.URL.Path, "/assets/") {
+					w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+				}
+				files.ServeHTTP(w, r)
+				return
 			}
-			files.ServeHTTP(w, r)
-			return
 		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Header().Set("Cache-Control", "no-cache")
-		http.ServeFile(w, r, filepath.Join(dir, "index.html"))
-	})
+		w.Write(index) //nolint:errcheck
+	}), nil
 }

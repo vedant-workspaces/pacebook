@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { Wordmark } from "../components/layout/AppLayout";
 import { Button } from "../components/ui/Button";
 import { ElevationLine } from "../components/ui/Feedback";
@@ -94,6 +94,11 @@ export default function Login() {
             </form>
           )}
         </div>
+        <p className="mt-8 text-xs text-white/50">
+          By continuing you agree to the{" "}
+          <Link to="/terms" className="underline hover:text-white">Terms</Link> and{" "}
+          <Link to="/privacy" className="underline hover:text-white">Privacy Policy</Link>.
+        </p>
       </main>
     </div>
   );

@@ -21,6 +21,15 @@ services:
         sync: false
       - key: GOOGLE_CLIENT_SECRET
         sync: false
+      # Contact email shown on the /privacy and /terms pages.
+      - key: VITE_CONTACT_EMAIL
+        sync: false
+      # Optional: Google Search Console verification. Paste the token (or the
+      # whole meta tag) and/or the HTML file name, e.g. google0123abcd.html.
+      - key: GOOGLE_SITE_VERIFICATION
+        sync: false
+      - key: GOOGLE_SITE_VERIFICATION_FILE
+        sync: false
       # FRONTEND_URL defaults to the service URL (RENDER_EXTERNAL_URL) and the
       # OAuth redirect to <FRONTEND_URL>/api/auth/google/callback. Set
       # FRONTEND_URL only when you add a custom domain.
