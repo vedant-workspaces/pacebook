@@ -189,10 +189,10 @@ Browser cookies are not port-specific, so in development the state cookie set vi
 | `PORT` | no | `8080` | API port |
 | `DATABASE_URL` | **yes** | | PostgreSQL connection string |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | in prod | | OAuth client |
-| `GOOGLE_REDIRECT_URL` | in prod | | Must exactly match the redirect URI registered with Google |
+| `GOOGLE_REDIRECT_URL` | no | `<FRONTEND_URL>/api/auth/google/callback` | Must exactly match the redirect URI registered with Google |
 | `SESSION_SECRET` | in prod (≥ 32 chars) | random per start in dev | HMAC key for session tokens |
 | `SESSION_TTL_DAYS` | no | `30` | Session lifetime |
-| `FRONTEND_URL` | no | `http://localhost:5173` | CORS origin and post-login redirect |
+| `FRONTEND_URL` | no | `$RENDER_EXTERNAL_URL`, else `http://localhost:5173` | CORS origin and post-login redirect |
 | `CORS_ALLOWED_ORIGINS` | no | | Extra origins, comma-separated |
 | `DEV_AUTH_ENABLED` | no | `false` | Development sign-in (development only) |
 | `STATIC_DIR` | no | | Serve the built SPA from this directory |
@@ -357,6 +357,32 @@ Frontend unit tests cover pace formatting and parsing, distance formatting, and 
 ---
 
 ## Production deployment
+
+### One-click: Render (recommended)
+
+The repo includes a `Dockerfile` (one ~25 MB image: the Go API serving the built React app) and a `render.yaml` Blueprint for the web service. The database is hosted separately, for example on Neon's free tier, which doesn't expire.
+
+1. **Database (Neon):** at [neon.tech](https://neon.tech) create a project with Postgres 16 or 17, in the region closest to your Render region. Copy the **direct** connection string; turn **off** "Connection pooling" so the host has no `-pooler`. It looks like `postgresql://user:pass@ep-xxx.region.aws.neon.tech/neondb?sslmode=require`.
+2. **Google OAuth client:** create a *Web application* client (see [Google OAuth setup](#google-oauth-setup)). Use the redirect URI `https://<service-name>.onrender.com/api/auth/google/callback`.
+3. On [render.com](https://render.com): **New → Blueprint**, connect GitHub, and pick this repository and branch. Enter `DATABASE_URL`, `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` when prompted, then click **Apply**.
+
+Render generates `SESSION_SECRET`. `FRONTEND_URL` defaults to the service's public URL, and the OAuth redirect defaults to `<FRONTEND_URL>/api/auth/google/callback`. The tables are created automatically on first start. Every push redeploys.
+
+The free web service sleeps when idle (about a 30-second cold start); the `starter` plan avoids that. For a custom domain, set `FRONTEND_URL=https://your-domain` and add `https://your-domain/api/auth/google/callback` to the Google client.
+
+### Any Docker host (Fly.io, Railway, Cloud Run, a VPS)
+
+```bash
+docker build -t pacebook .
+docker run -p 8080:8080 \
+  -e DATABASE_URL=postgres://… -e SESSION_SECRET=$(openssl rand -hex 32) \
+  -e FRONTEND_URL=https://your-domain \
+  -e GOOGLE_CLIENT_ID=… -e GOOGLE_CLIENT_SECRET=… pacebook
+```
+
+The container listens on `$PORT` (default 8080) and needs HTTPS in front of it, because session cookies are `Secure`.
+
+### Manual
 
 1. Provision PostgreSQL 15+ and set `DATABASE_URL`.
 2. Set `APP_ENV=production`, `SESSION_SECRET` (`openssl rand -hex 32`), `GOOGLE_*` with the production redirect URI, and `FRONTEND_URL=https://your-domain`.

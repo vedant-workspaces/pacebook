@@ -1,0 +1,26 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+# New → Blueprint → pick this repo. You'll be asked for DATABASE_URL (an
+# external PostgreSQL 15+ such as Neon) and the Google OAuth client ID and
+# secret; everything else is wired up automatically.
+services:
+  - type: web
+    name: pacebook
+    runtime: docker
+    plan: free            # use "starter" to avoid cold starts
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: APP_ENV
+        value: production
+      # Direct (non-pooled) connection string with sslmode=require.
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      # FRONTEND_URL defaults to the service URL (RENDER_EXTERNAL_URL) and the
+      # OAuth redirect to <FRONTEND_URL>/api/auth/google/callback. Set
+      # FRONTEND_URL only when you add a custom domain.

@@ -1,0 +1,26 @@
+# syntax=docker/dockerfile:1
+# Single image: the Go API serves the built React app from /app/public.
+
+FROM node:22-alpine AS web
+WORKDIR /web
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build
+
+FROM golang:1.24-alpine AS api
+WORKDIR /src
+ENV GOTOOLCHAIN=local CGO_ENABLED=0
+COPY backend/go.mod backend/go.sum ./
+RUN go mod download
+COPY backend/ ./
+RUN go build -trimpath -ldflags="-s -w" -o /out/pacebook ./cmd/server
+
+FROM gcr.io/distroless/static-debian12:nonroot
+WORKDIR /app
+COPY --from=api /out/pacebook /app/pacebook
+COPY --from=web /web/dist /app/public
+ENV APP_ENV=production STATIC_DIR=/app/public PORT=8080
+EXPOSE 8080
+USER nonroot:nonroot
+ENTRYPOINT ["/app/pacebook"]
