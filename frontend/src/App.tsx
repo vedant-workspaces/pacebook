@@ -5,6 +5,7 @@ import { useAuth } from "./hooks/useAuth";
 import { MetaProvider } from "./hooks/useMeta";
 import Dashboard from "./pages/Dashboard";
 import LogActivity, { EditActivity } from "./pages/LogActivity";
+import { Privacy, Terms } from "./pages/Legal";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import RunDetail from "./pages/RunDetail";
@@ -39,6 +40,8 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
       <Route element={<RequireAuth />}>
         <Route index element={<Dashboard />} />
         <Route path="training" element={<Training />} />
