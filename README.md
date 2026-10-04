@@ -360,17 +360,15 @@ Frontend unit tests cover pace formatting and parsing, distance formatting, and 
 
 ### One-click: Render (recommended)
 
-The repo includes a `Dockerfile` (one ~25 MB image: the Go API serving the built React app) and a `render.yaml` Blueprint (that service plus managed PostgreSQL 16).
+The repo includes a `Dockerfile` (one ~25 MB image: the Go API serving the built React app) and a `render.yaml` Blueprint for the web service. The database is hosted separately, for example on Neon's free tier, which doesn't expire.
 
-1. **Google OAuth client:** create a *Web application* client (see [Google OAuth setup](#google-oauth-setup)). Use the redirect URI `https://<service-name>.onrender.com/api/auth/google/callback`. With the default name it's `https://pacebook.onrender.com/...`; if that name is taken, Render adds a suffix, so update the URI after the first deploy.
-2. On [render.com](https://render.com): **New → Blueprint**, connect GitHub, and pick this repository and branch.
-3. Enter `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` when prompted, then click **Apply**.
+1. **Database (Neon):** at [neon.tech](https://neon.tech) create a project with Postgres 16 or 17, in the region closest to your Render region. Copy the **direct** connection string; turn **off** "Connection pooling" so the host has no `-pooler`. It looks like `postgresql://user:pass@ep-xxx.region.aws.neon.tech/neondb?sslmode=require`.
+2. **Google OAuth client:** create a *Web application* client (see [Google OAuth setup](#google-oauth-setup)). Use the redirect URI `https://<service-name>.onrender.com/api/auth/google/callback`.
+3. On [render.com](https://render.com): **New → Blueprint**, connect GitHub, and pick this repository and branch. Enter `DATABASE_URL`, `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` when prompted, then click **Apply**.
 
-Render creates the database and generates `SESSION_SECRET`. `FRONTEND_URL` defaults to the service's public URL, and the OAuth redirect defaults to `<FRONTEND_URL>/api/auth/google/callback`. Migrations run on start-up. Every push to the branch redeploys.
+Render generates `SESSION_SECRET`. `FRONTEND_URL` defaults to the service's public URL, and the OAuth redirect defaults to `<FRONTEND_URL>/api/auth/google/callback`. The tables are created automatically on first start. Every push redeploys.
 
-Plans: the free web service sleeps when idle (about a 30-second cold start), and **free Postgres expires after 30 days**. For real use, switch the database to `basic-256mb` and optionally the service to `starter` in `render.yaml` or the dashboard.
-
-For a custom domain, add it in Render, set `FRONTEND_URL=https://your-domain`, and add `https://your-domain/api/auth/google/callback` to the Google client.
+The free web service sleeps when idle (about a 30-second cold start); the `starter` plan avoids that. For a custom domain, set `FRONTEND_URL=https://your-domain` and add `https://your-domain/api/auth/google/callback` to the Google client.
 
 ### Any Docker host (Fly.io, Railway, Cloud Run, a VPS)
 
