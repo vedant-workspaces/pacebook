@@ -1,4 +1,4 @@
-// Command server runs the Pacebook REST API.
+// Command server runs the Pacelog REST API.
 package main
 
 import (
@@ -54,7 +54,7 @@ func run() error {
 
 	errc := make(chan error, 1)
 	go func() {
-		slog.Info("pacebook api listening", "port", cfg.Port, "env", cfg.Env,
+		slog.Info("pacelog api listening", "port", cfg.Port, "env", cfg.Env,
 			"google_auth", cfg.GoogleEnabled(), "dev_login", cfg.DevAuthEnabled)
 		errc <- srv.ListenAndServe()
 	}()

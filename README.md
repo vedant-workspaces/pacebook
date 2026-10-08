@@ -1,8 +1,8 @@
-# Pacebook
+# Pacelog
 
 **Plan your training. Run your plan. Track what actually happened.**
 
-Pacebook is a personal running log and training diary. It keeps two things side by side:
+Pacelog is a personal running log and training diary. It keeps two things side by side:
 
 - **The plan:** training blocks with planned sessions on specific dates.
 - **The reality:** the activities you actually ran, with distance, pace, heart rate and a comment.
@@ -90,7 +90,7 @@ In development, Vite proxies `/api` to the Go server, so cookies are same-origin
 ## Folder structure
 
 ```
-pacebook/
+pacelog/
 ├── backend/
 │   ├── cmd/
 │   │   ├── server/main.go        # API entry point (config, DB, migrate, serve)
@@ -155,7 +155,7 @@ Design notes:
 
 - `GET /api/auth/google` creates a random `state` and a PKCE verifier, stores both in short-lived HttpOnly cookies, and redirects to Google.
 - `GET /api/auth/google/callback` checks `state` in constant time, exchanges the code with PKCE, and fetches the OpenID userinfo. It requires `email_verified`, upserts the user keyed on Google's subject ID, and creates a session.
-- **Sessions** are 32-byte random tokens in a `pacebook_session` cookie: `HttpOnly`, `SameSite=Lax`, and `Secure` when `APP_ENV=production`. The database stores only an HMAC-SHA256 of the token, keyed with `SESSION_SECRET`. Expired sessions are cleaned up hourly.
+- **Sessions** are 32-byte random tokens in a `pacelog_session` cookie: `HttpOnly`, `SameSite=Lax`, and `Secure` when `APP_ENV=production`. The database stores only an HMAC-SHA256 of the token, keyed with `SESSION_SECRET`. Expired sessions are cleaned up hourly.
 - `POST /api/auth/logout` deletes the session row and clears the cookie. `GET /api/auth/me` returns the current user.
 - **CSRF:** every state-changing request needs the `X-Requested-With` header, and any `Origin` header must be an allowed origin. A cross-site page cannot send that header without a CORS preflight, and preflights only succeed for configured origins. This works together with `SameSite=Lax`.
 - **CORS** allows only `FRONTEND_URL` plus `CORS_ALLOWED_ORIGINS`, with credentials. Wildcards are never used.
@@ -209,7 +209,7 @@ Copy `.env.example` to `.env`. `.env` is git-ignored.
 Prerequisites: Go 1.24+, Node 20+, and PostgreSQL 15+ (or Docker).
 
 ```bash
-# 1. Database (creates `pacebook` and `pacebook_test`)
+# 1. Database (creates `pacelog` and `pacelog_test`)
 docker compose up -d db
 
 # 2. Configuration
@@ -223,7 +223,7 @@ make dev-api          # = cd backend && go run ./cmd/server
 cd frontend && npm install && npm run dev
 
 # 5. Optional sample data (a 16-week block, results, skips, unplanned runs)
-make seed EMAIL=runner@pacebook.local
+make seed EMAIL=runner@pacelog.local
 ```
 
 Open http://localhost:5173. With `DEV_AUTH_ENABLED=true`, use **Development sign-in** with the same email you seeded.
@@ -251,7 +251,7 @@ The seed command (`backend/cmd/seed`) refuses to run when `APP_ENV=production`.
 
 ## API documentation
 
-Every endpoint except `/api/health` and the `auth` routes requires a session cookie. All writes need the header `X-Requested-With: pacebook`.
+Every endpoint except `/api/health` and the `auth` routes requires a session cookie. All writes need the header `X-Requested-With: pacelog`.
 
 **Responses**
 
@@ -360,7 +360,29 @@ Frontend unit tests cover pace formatting and parsing, distance formatting, and 
 
 ## Production deployment
 
-### One-click: Render (recommended)
+### Vercel (recommended)
+
+Vercel builds the React app as static files and runs the Go API as one serverless function (`api/index.go` → `backend/app`). PostgreSQL is external; Neon's free tier works well.
+
+1. **Database:** create a Neon project (Postgres 16+) and copy the **direct** connection string, the one without `-pooler`, ending in `?sslmode=require`.
+2. **Vercel:** **Add New → Project**, import the GitHub repo, and leave **Root Directory** as the repo root. `vercel.json` sets the build, output and routing.
+3. **Environment variables** (Production):
+
+   | Key | Value |
+   |---|---|
+   | `DATABASE_URL` | Neon connection string |
+   | `SESSION_SECRET` | `openssl rand -hex 32` |
+   | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth client |
+   | `FRONTEND_URL` | `https://<project>.vercel.app` (or your custom domain) |
+   | `VITE_CONTACT_EMAIL` | optional: contact shown on /privacy and /terms |
+
+   `APP_ENV` defaults to `production` on Vercel. `FRONTEND_URL` falls back to `VERCEL_PROJECT_PRODUCTION_URL` but is best set explicitly.
+4. **Google client:** add the JavaScript origin `https://<project>.vercel.app` and the redirect URI `https://<project>.vercel.app/api/auth/google/callback`.
+5. Deploy. Migrations run on the function's first (cold) start. Check `https://<project>.vercel.app/api/health`.
+
+How it fits together: `vercel.json` rewrites `/api/*` (and Search Console `google*.html` files) to the function, passing the original path, and every other path to `index.html` for client-side routing. Each function instance keeps a small connection pool (3 by default, `DB_MAX_CONNS` to change), and expired sessions are pruned on cold start.
+
+### Render
 
 The repo includes a `Dockerfile` (one ~25 MB image: the Go API serving the built React app) and a `render.yaml` Blueprint for the web service. The database is hosted separately, for example on Neon's free tier, which doesn't expire.
 
@@ -375,11 +397,11 @@ The free web service sleeps when idle (about a 30-second cold start); the `start
 ### Any Docker host (Fly.io, Railway, Cloud Run, a VPS)
 
 ```bash
-docker build -t pacebook .
+docker build -t pacelog .
 docker run -p 8080:8080 \
   -e DATABASE_URL=postgres://… -e SESSION_SECRET=$(openssl rand -hex 32) \
   -e FRONTEND_URL=https://your-domain \
-  -e GOOGLE_CLIENT_ID=… -e GOOGLE_CLIENT_SECRET=… pacebook
+  -e GOOGLE_CLIENT_ID=… -e GOOGLE_CLIENT_SECRET=… pacelog
 ```
 
 The container listens on `$PORT` (default 8080) and needs HTTPS in front of it, because session cookies are `Secure`.
@@ -388,8 +410,8 @@ The container listens on `$PORT` (default 8080) and needs HTTPS in front of it, 
 
 1. Provision PostgreSQL 15+ and set `DATABASE_URL`.
 2. Set `APP_ENV=production`, `SESSION_SECRET` (`openssl rand -hex 32`), `GOOGLE_*` with the production redirect URI, and `FRONTEND_URL=https://your-domain`.
-3. Build: `make build` produces `backend/bin/pacebook` and `frontend/dist`.
-4. **Single service (recommended):** run `STATIC_DIR=frontend/dist ./backend/bin/pacebook`. The API serves the SPA with client-side route fallback, so the frontend and API share an origin.
+3. Build: `make build` produces `backend/bin/pacelog` and `frontend/dist`.
+4. **Single service (recommended):** run `STATIC_DIR=frontend/dist ./backend/bin/pacelog`. The API serves the SPA with client-side route fallback, so the frontend and API share an origin.
 5. Put it behind HTTPS (a load balancer or reverse proxy). Session cookies are `Secure` in production and need HTTPS.
 6. Migrations run automatically at start-up. `GET /api/health` checks database connectivity and suits load-balancer health checks.
 

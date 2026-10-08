@@ -1,1 +1,1 @@
-CREATE DATABASE pacebook_test OWNER pacebook;
+CREATE DATABASE pacelog_test OWNER pacelog;

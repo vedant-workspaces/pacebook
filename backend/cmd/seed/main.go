@@ -2,7 +2,7 @@
 // planned sessions and logged runs for one user. It refuses to run when
 // APP_ENV=production.
 //
-//	go run ./cmd/seed -email runner@pacebook.local
+//	go run ./cmd/seed -email runner@pacelog.local
 //
 // The user is created as a dev-login user if they don't exist yet, so the
 // data is visible after signing in with "Dev sign-in" using the same email.
@@ -32,7 +32,7 @@ func main() {
 }
 
 func run() error {
-	email := flag.String("email", "runner@pacebook.local", "email of the user to seed")
+	email := flag.String("email", "runner@pacelog.local", "email of the user to seed")
 	flag.Parse()
 
 	if os.Getenv("APP_ENV") == "production" {

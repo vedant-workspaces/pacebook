@@ -3,13 +3,13 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: pacebook
-      POSTGRES_PASSWORD: pacebook
-      POSTGRES_DB: pacebook
+      POSTGRES_USER: pacelog
+      POSTGRES_PASSWORD: pacelog
+      POSTGRES_DB: pacelog
     ports:
       - "5432:5432"
     volumes:
-      - pacebook-db:/var/lib/postgresql/data
+      - pacelog-db:/var/lib/postgresql/data
       - ./scripts/create-test-db.sql:/docker-entrypoint-initdb.d/create-test-db.sql:ro
 volumes:
-  pacebook-db:
+  pacelog-db:

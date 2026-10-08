@@ -4,7 +4,7 @@ include .env
 export
 endif
 
-TEST_DATABASE_URL ?= postgres://pacebook:pacebook@localhost:5432/pacebook_test?sslmode=disable
+TEST_DATABASE_URL ?= postgres://pacelog:pacelog@localhost:5432/pacelog_test?sslmode=disable
 
 .PHONY: db dev-api dev-web seed test test-api test-web build
 
@@ -17,8 +17,8 @@ dev-api:       ## Run the Go API on :8080 (applies migrations on start)
 dev-web:       ## Run the Vite dev server on :5173 (proxies /api to :8080)
 	cd frontend && npm run dev
 
-seed:          ## Seed sample data for EMAIL (default runner@pacebook.local)
-	cd backend && go run ./cmd/seed -email $${EMAIL:-runner@pacebook.local}
+seed:          ## Seed sample data for EMAIL (default runner@pacelog.local)
+	cd backend && go run ./cmd/seed -email $${EMAIL:-runner@pacelog.local}
 
 test: test-api test-web
 
@@ -28,6 +28,6 @@ test-api:
 test-web:
 	cd frontend && npm run typecheck && npm test
 
-build:         ## Production build: backend/bin/pacebook + frontend/dist
+build:         ## Production build: backend/bin/pacelog + frontend/dist
 	cd frontend && npm ci && npm run build
-	cd backend && CGO_ENABLED=0 go build -o bin/pacebook ./cmd/server
+	cd backend && CGO_ENABLED=0 go build -o bin/pacelog ./cmd/server

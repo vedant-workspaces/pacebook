@@ -133,7 +133,7 @@ func (c *client) do(method, path string, body any) response {
 		c.e.t.Fatal(err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Requested-With", "pacebook")
+	req.Header.Set("X-Requested-With", "pacelog")
 	res, err := c.http.Do(req)
 	if err != nil {
 		c.e.t.Fatal(err)
@@ -246,7 +246,7 @@ func TestCSRFHeaderRequiredForWrites(t *testing.T) {
 	}
 
 	req, _ = http.NewRequest("POST", e.srv.URL+"/api/activities", bytes.NewReader([]byte(`{}`)))
-	req.Header.Set("X-Requested-With", "pacebook")
+	req.Header.Set("X-Requested-With", "pacelog")
 	req.Header.Set("Origin", "https://evil.example")
 	res, err = alice.http.Do(req)
 	if err != nil {

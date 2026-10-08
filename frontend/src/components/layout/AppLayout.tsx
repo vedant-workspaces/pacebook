@@ -16,7 +16,7 @@ export function Wordmark() {
     <span className="flex items-center gap-2">
       <LogoMark />
       <span className="font-display text-2xl font-extrabold uppercase italic tracking-wide">
-        Pace<span className="text-ember-500">book</span>
+        Pace<span className="text-ember-500">log</span>
       </span>
     </span>
   );
@@ -33,7 +33,7 @@ export function AppLayout() {
       </a>
       <header className="sticky top-0 z-30 border-b border-line bg-paper/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4 sm:px-6">
-          <NavLink to="/" aria-label="Pacebook home">
+          <NavLink to="/" aria-label="Pacelog home">
             <Wordmark />
           </NavLink>
           <nav aria-label="Main" className="hidden md:block">

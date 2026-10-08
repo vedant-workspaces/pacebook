@@ -10,7 +10,7 @@ function Contact() {
   return CONTACT ? (
     <a className="font-semibold text-ember-600 underline" href={`mailto:${CONTACT}`}>{CONTACT}</a>
   ) : (
-    <>the support email shown on Pacebook's Google sign-in screen</>
+    <>the support email shown on Pacelog's Google sign-in screen</>
   );
 }
 
@@ -19,7 +19,7 @@ function LegalPage({ title, children }: { title: string; children: ReactNode }) 
     <div className="min-h-dvh bg-paper">
       <header className="border-b border-line">
         <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4 sm:px-6">
-          <Link to="/" aria-label="Pacebook home">
+          <Link to="/" aria-label="Pacelog home">
             <Wordmark />
           </Link>
           <nav className="flex gap-4 text-sm font-semibold text-ink-soft">
@@ -43,7 +43,7 @@ export function Privacy() {
   return (
     <LegalPage title="Privacy Policy">
       <p>
-        Pacebook is a personal running log and training diary. This policy explains what information Pacebook
+        Pacelog is a personal running log and training diary. This policy explains what information Pacelog
         collects, how it is used, and the choices you have.
       </p>
       <section>
@@ -74,7 +74,7 @@ export function Privacy() {
       <section>
         <h2>Google user data</h2>
         <p>
-          Pacebook's use of information received from Google APIs adheres to the Google API Services User Data
+          Pacelog's use of information received from Google APIs adheres to the Google API Services User Data
           Policy, including the Limited Use requirements. Google account data is used solely to sign you in and
           display your name and picture.
         </p>
@@ -93,7 +93,7 @@ export function Privacy() {
           Your data is kept while your account exists. You can delete individual activities and training blocks
           at any time in the app. To delete your account and all associated data, email{" "}
           <Contact /> and it
-          will be removed within 30 days. You can also revoke Pacebook's access at any time from your Google
+          will be removed within 30 days. You can also revoke Pacelog's access at any time from your Google
           Account's security settings.
         </p>
       </section>
@@ -110,18 +110,18 @@ export function Privacy() {
 export function Terms() {
   return (
     <LegalPage title="Terms of Service">
-      <p>By using Pacebook you agree to these terms.</p>
+      <p>By using Pacelog you agree to these terms.</p>
       <section>
         <h2>The service</h2>
         <p>
-          Pacebook lets you plan training and log your running activities. It is provided free of charge, "as
+          Pacelog lets you plan training and log your running activities. It is provided free of charge, "as
           is", without warranties of any kind, and may change or be discontinued at any time.
         </p>
       </section>
       <section>
         <h2>Not medical advice</h2>
         <p>
-          Pacebook is a record-keeping tool. Nothing in it is medical, health or coaching advice. Consult a
+          Pacelog is a record-keeping tool. Nothing in it is medical, health or coaching advice. Consult a
           qualified professional before starting or changing a training programme.
         </p>
       </section>
@@ -129,7 +129,7 @@ export function Terms() {
         <h2>Your account and content</h2>
         <p>
           You are responsible for activity on your account. The training data you enter is yours. You may stop
-          using Pacebook and request deletion of your data at any time (see the{" "}
+          using Pacelog and request deletion of your data at any time (see the{" "}
           <Link className="font-semibold text-ember-600 underline" to="/privacy">Privacy Policy</Link>).
         </p>
       </section>
@@ -140,7 +140,7 @@ export function Terms() {
       <section>
         <h2>Liability</h2>
         <p>
-          To the extent permitted by law, Pacebook is not liable for any loss of data or any indirect or
+          To the extent permitted by law, Pacelog is not liable for any loss of data or any indirect or
           consequential damages arising from use of the service.
         </p>
       </section>

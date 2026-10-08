@@ -4,7 +4,7 @@
 # secret; everything else is wired up automatically.
 services:
   - type: web
-    name: pacebook
+    name: pacelog
     runtime: docker
     plan: free            # use "starter" to avoid cold starts
     healthCheckPath: /api/health

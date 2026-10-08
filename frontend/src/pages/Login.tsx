@@ -13,7 +13,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const config = useAsync(() => api.authConfig(), []);
-  const [email, setEmail] = useState("runner@pacebook.local");
+  const [email, setEmail] = useState("runner@pacelog.local");
   const [devError, setDevError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 

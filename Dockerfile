@@ -17,13 +17,13 @@ ENV GOTOOLCHAIN=local CGO_ENABLED=0
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 COPY backend/ ./
-RUN go build -trimpath -ldflags="-s -w" -o /out/pacebook ./cmd/server
+RUN go build -trimpath -ldflags="-s -w" -o /out/pacelog ./cmd/server
 
 FROM gcr.io/distroless/static-debian12:nonroot
 WORKDIR /app
-COPY --from=api /out/pacebook /app/pacebook
+COPY --from=api /out/pacelog /app/pacelog
 COPY --from=web /web/dist /app/public
 ENV APP_ENV=production STATIC_DIR=/app/public PORT=8080
 EXPOSE 8080
 USER nonroot:nonroot
-ENTRYPOINT ["/app/pacebook"]
+ENTRYPOINT ["/app/pacelog"]

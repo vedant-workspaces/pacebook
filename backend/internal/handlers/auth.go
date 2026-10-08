@@ -82,7 +82,7 @@ func (h *AuthHandler) DevLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	email := strings.ToLower(strings.TrimSpace(body.Email))
 	if email == "" {
-		email = "runner@pacebook.local"
+		email = "runner@pacelog.local"
 	}
 	if !strings.Contains(email, "@") || len(email) > 254 {
 		httpx.FieldError(w, "email", "Enter a valid email address.")

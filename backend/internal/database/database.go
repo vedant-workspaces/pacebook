@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io/fs"
 	"log/slog"
+	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -22,6 +24,15 @@ func Connect(ctx context.Context, url string) (*pgxpool.Pool, error) {
 		return nil, fmt.Errorf("parse database url: %w", err)
 	}
 	cfg.MaxConnIdleTime = 5 * time.Minute
+	// Serverless instances each hold their own pool; keep them small so many
+	// concurrent instances don't exhaust the database's connection limit.
+	if os.Getenv("VERCEL") != "" {
+		cfg.MaxConns = 3
+		cfg.MinConns = 0
+	}
+	if n, err := strconv.Atoi(os.Getenv("DB_MAX_CONNS")); err == nil && n > 0 {
+		cfg.MaxConns = int32(n)
+	}
 
 	pool, err := pgxpool.NewWithConfig(ctx, cfg)
 	if err != nil {

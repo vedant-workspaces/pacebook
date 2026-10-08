@@ -24,7 +24,7 @@ function RequireAuth() {
         <span className="animate-pulse">
           <LogoMark size={48} />
         </span>
-        <span className="sr-only">Loading Pacebook…</span>
+        <span className="sr-only">Loading Pacelog…</span>
       </div>
     );
   }

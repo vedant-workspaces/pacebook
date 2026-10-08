@@ -16,8 +16,8 @@ import (
 )
 
 const (
-	stateCookieName    = "pacebook_oauth_state"
-	verifierCookieName = "pacebook_oauth_verifier"
+	stateCookieName    = "pacelog_oauth_state"
+	verifierCookieName = "pacelog_oauth_verifier"
 	userInfoURL        = "https://openidconnect.googleapis.com/v1/userinfo"
 )
 

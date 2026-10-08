@@ -51,16 +51,15 @@ func (c *Config) GoogleEnabled() bool {
 
 func Load() (*Config, error) {
 	cfg := &Config{
-		Env:                getenv("APP_ENV", "development"),
+		Env:                getenv("APP_ENV", defaultEnv()),
 		Port:               getenv("PORT", "8080"),
 		DatabaseURL:        os.Getenv("DATABASE_URL"),
 		GoogleClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		GoogleRedirectURL:  os.Getenv("GOOGLE_REDIRECT_URL"),
 		SessionSecret:      os.Getenv("SESSION_SECRET"),
-		// On Render, the service's public URL is a sensible default.
-		FrontendURL: strings.TrimRight(getenv("FRONTEND_URL", getenv("RENDER_EXTERNAL_URL", "http://localhost:5173")), "/"),
-		StaticDir:   os.Getenv("STATIC_DIR"),
+		FrontendURL:        strings.TrimRight(getenv("FRONTEND_URL", platformURL()), "/"),
+		StaticDir:          os.Getenv("STATIC_DIR"),
 	}
 
 	cfg.SiteVerificationToken = parseVerificationToken(getenv("GOOGLE_SITE_VERIFICATION", os.Getenv("VITE_GOOGLE_SITE_VERIFICATION")))
@@ -135,6 +134,26 @@ func parseVerificationToken(v string) string {
 		return ""
 	}
 	return v
+}
+
+// defaultEnv is "production" on Vercel (no Dockerfile to set APP_ENV).
+func defaultEnv() string {
+	if os.Getenv("VERCEL") != "" {
+		return "production"
+	}
+	return "development"
+}
+
+// platformURL is the app's public URL as reported by the hosting platform,
+// used when FRONTEND_URL isn't set.
+func platformURL() string {
+	if u := os.Getenv("RENDER_EXTERNAL_URL"); u != "" {
+		return u
+	}
+	if h := os.Getenv("VERCEL_PROJECT_PRODUCTION_URL"); h != "" {
+		return "https://" + h
+	}
+	return "http://localhost:5173"
 }
 
 func getenv(key, fallback string) string {

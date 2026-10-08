@@ -14,7 +14,7 @@ import (
 	"github.com/vedant-workspaces/pacebook/backend/internal/repository"
 )
 
-const SessionCookieName = "pacebook_session"
+const SessionCookieName = "pacelog_session"
 
 // Sessions issues opaque random tokens in an HttpOnly cookie. Only an HMAC
 // of each token is stored, so a database leak does not leak live sessions.

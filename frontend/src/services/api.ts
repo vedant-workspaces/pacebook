@@ -30,7 +30,7 @@ export class ApiError extends Error {
 }
 
 /** Fired on any 401 so the app can drop back to the login screen. */
-export const UNAUTHORIZED_EVENT = "pacebook:unauthorized";
+export const UNAUTHORIZED_EVENT = "pacelog:unauthorized";
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   let res: Response;
@@ -41,13 +41,13 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
       headers: {
         Accept: "application/json",
         // Required by the API's CSRF protection on writes.
-        "X-Requested-With": "pacebook",
+        "X-Requested-With": "pacelog",
         ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch {
-    throw new ApiError(0, "NETWORK_ERROR", "Can't reach Pacebook. Check your connection and try again.");
+    throw new ApiError(0, "NETWORK_ERROR", "Can't reach Pacelog. Check your connection and try again.");
   }
 
   if (res.status === 204) return undefined as T;
