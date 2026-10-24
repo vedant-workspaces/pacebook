@@ -133,7 +133,9 @@ fun RunDetailScreen(vm: AppViewModel, s: Snapshot, id: Long, onEdit: () -> Unit,
     var confirm by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
-    val moving = if (a.distanceKm != null && a.paceSecPerKm != null) a.distanceKm * a.paceSecPerKm else null
+    val km = a.distanceKm
+    val pace = a.paceSecPerKm
+    val moving = if (km != null && pace != null) km * pace else null
 
     Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         AppCard(dark = true, padding = 20.dp) {
@@ -173,9 +175,10 @@ fun RunDetailScreen(vm: AppViewModel, s: Snapshot, id: Long, onEdit: () -> Unit,
                     StatusChip(p.status)
                 }
                 Text(p.title + plannedTarget(p).let { if (it.isEmpty()) "" else " — $it" }, fontWeight = FontWeight.SemiBold)
-                if (p.plannedDistanceKm != null && a.distanceKm != null) {
+                val plannedKm = p.plannedDistanceKm
+                if (plannedKm != null && km != null) {
                     Text(
-                        "Planned ${formatKm(p.plannedDistanceKm)} km · Actual ${formatKm(a.distanceKm)} km · Difference ${formatSignedKm(a.distanceKm - p.plannedDistanceKm)}",
+                        "Planned ${formatKm(plannedKm)} km · Actual ${formatKm(km)} km · Difference ${formatSignedKm(km - plannedKm)}",
                         color = Pal.Muted, fontSize = 13.sp,
                     )
                 }

@@ -164,10 +164,12 @@ fun PlannedSheet(
                                 Text(formatPace(actual.paceSecPerKm), style = Numeric, fontSize = 18.sp)
                                 actual.avgHeartRate?.let { Text("♥ $it bpm", fontWeight = FontWeight.SemiBold) }
                             }
-                            if (p.plannedDistanceKm != null && actual.distanceKm != null) {
+                            val plannedKm = p.plannedDistanceKm
+                            val actualKm = actual.distanceKm
+                            if (plannedKm != null && actualKm != null) {
                                 Text(
-                                    "Planned ${formatDistance(p.plannedDistanceKm)} · Actual ${formatDistance(actual.distanceKm)} · " +
-                                        "Difference ${formatSignedKm(actual.distanceKm - p.plannedDistanceKm)}",
+                                    "Planned ${formatDistance(plannedKm)} · Actual ${formatDistance(actualKm)} · " +
+                                        "Difference ${formatSignedKm(actualKm - plannedKm)}",
                                     color = Pal.Muted, fontSize = 13.sp,
                                 )
                             }
