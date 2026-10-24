@@ -11,6 +11,16 @@ From those two it shows weekly, monthly and yearly mileage, planned vs actual co
 
 ---
 
+## Android app (no server needed)
+
+`android/` is a native Kotlin + Jetpack Compose app with the same features as the web app. Everything is stored on the phone in SQLite (Room): no account, no hosting, works offline.
+
+- **Install:** open the repository's **Releases** page on your phone, download `Pacelog.apk` from the latest release, and open it. Android asks once to allow installs from your browser or file manager.
+- **Backups:** your data lives only on the phone. Use **Settings → Save backup** to write a JSON file (e.g. to Google Drive), and **Restore from backup** on a new phone.
+- **Builds:** `.github/workflows/android.yml` runs the domain tests, builds a signed release APK and publishes it as a GitHub Release on every push that touches `android/`.
+- **Structure:** `android/core` is pure Kotlin (models, validation, the complete/skip/modify rules, statistics) with unit tests, run with `PACELOG_CORE_ONLY=1 gradle :core:test` (no Android SDK needed). `android/app` holds the Room database and the Compose UI.
+- **Signing:** builds use `android/keystore/pacelog-sideload.jks` so updates install over earlier versions. That key is in the repo, so it is only suitable for personal sideloading; create a private key before publishing to an app store.
+
 ## Contents
 
 - [Overview](#overview)
